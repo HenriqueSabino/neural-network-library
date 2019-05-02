@@ -9,7 +9,7 @@ import java.util.Objects;
 public class Matrix implements Serializable {
     
     private static final long serialVersionUID = 2186517158094722057L;
-    public double[][] matrix;
+    private double[][] matrix;
     private int rows;
     private int columns;
     
@@ -63,6 +63,39 @@ public class Matrix implements Serializable {
         return result;
     }
     
+    public static Matrix scalarMult(Matrix a, double scalar) {
+        Matrix result = new Matrix(a.getRows(), a.getColumns());
+        
+        for (int i = 0; i < result.getRows(); i++) {
+            for (int j = 0; j < result.getColumns(); j++) {
+                
+                double value = scalar * a.getValue(i, j);
+                result.setValue(i, j, value);
+            }
+        }
+        
+        return result;
+    }
+    
+    public static Matrix scalarDiv(Matrix a, double scalar) {
+        
+        if (scalar == 0) {
+            throw new IllegalArgumentException("Cannot divide by zero");
+        }
+        
+        Matrix result = new Matrix(a.getRows(), a.getColumns());
+        
+        for (int i = 0; i < result.getRows(); i++) {
+            for (int j = 0; j < result.getColumns(); j++) {
+                
+                double value = a.getValue(i, j) / scalar;
+                result.setValue(i, j, value);
+            }
+        }
+        
+        return result;
+    }
+    
     //endregion
     
     //region Instance methods
@@ -90,6 +123,29 @@ public class Matrix implements Serializable {
         for (int i = 0; i < getRows(); i++) {
             for (int j = 0; j < getColumns(); j++) {
                 double value = getValue(i, j) - other.getValue(i, j);
+                setValue(i, j, value);
+            }
+        }
+    }
+    
+    public void scalarMult(double scalar) {
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getColumns(); j++) {
+                double value = scalar * getValue(i, j);
+                setValue(i, j, value);
+            }
+        }
+    }
+    
+    public void scalarDiv(double scalar) {
+        
+        if (scalar == 0) {
+            throw new IllegalArgumentException("Cannot divide by zero");
+        }
+        
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getColumns(); j++) {
+                double value = getValue(i, j) / scalar;
                 setValue(i, j, value);
             }
         }
