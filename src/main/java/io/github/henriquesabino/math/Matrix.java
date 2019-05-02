@@ -96,6 +96,27 @@ public class Matrix implements Serializable {
         return result;
     }
     
+    public static Matrix mult(Matrix a, Matrix b) {
+        
+        if (a.getColumns() != b.getRows()) {
+            throw new IncompatibleMatricesException("The number of columns of the first matrix must " +
+                    "equal the number of rows of the other");
+        }
+        
+        Matrix result = new Matrix(a.getRows(), b.getColumns());
+        
+        for (int i = 0; i < result.getRows(); i++) {
+            for (int j = 0; j < result.getColumns(); j++) {
+                for (int k = 0; k < a.getColumns(); k++) {
+                    double value = result.getValue(i, j) + a.getValue(i, k) * b.getValue(k, j);
+                    result.setValue(i, j, value);
+                }
+            }
+        }
+        
+        return result;
+    }
+    
     //endregion
     
     //region Instance methods
