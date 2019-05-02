@@ -1,5 +1,7 @@
 package io.github.henriquesabino.math;
 
+import io.github.henriquesabino.math.exception.IncompatibleMatricesException;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
@@ -23,8 +25,75 @@ public class Matrix implements Serializable {
         matrix = new double[rows][columns];
     }
     
+    //region Class methods
+    
+    public static Matrix add(Matrix a, Matrix b) {
+        if (a.getRows() != b.getRows() || a.getColumns() != b.getColumns()) {
+            throw new IncompatibleMatricesException("Matrices must be of the same order " +
+                    "to perform this operation");
+        }
+        
+        Matrix result = new Matrix(a.getRows(), a.getColumns());
+        
+        for (int i = 0; i < result.getRows(); i++) {
+            for (int j = 0; j < result.getColumns(); j++) {
+                double value = a.getValue(i, j) + b.getValue(i, j);
+                result.setValue(i, j, value);
+            }
+        }
+        
+        return result;
+    }
+    
+    public static Matrix sub(Matrix a, Matrix b) {
+        if (a.getRows() != b.getRows() || a.getColumns() != b.getColumns()) {
+            throw new IncompatibleMatricesException("Matrices must be of the same order " +
+                    "to perform this operation");
+        }
+        
+        Matrix result = new Matrix(a.getRows(), a.getColumns());
+        
+        for (int i = 0; i < result.getRows(); i++) {
+            for (int j = 0; j < result.getColumns(); j++) {
+                double value = a.getValue(i, j) - b.getValue(i, j);
+                result.setValue(i, j, value);
+            }
+        }
+        
+        return result;
+    }
+    
+    //endregion
     
     //region Instance methods
+    
+    public void add(Matrix other) {
+        if (getRows() != other.getRows() || getColumns() != other.getColumns()) {
+            throw new IncompatibleMatricesException("Matrices must be of the same order " +
+                    "to perform this operation");
+        }
+        
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getColumns(); j++) {
+                double value = getValue(i, j) + other.getValue(i, j);
+                setValue(i, j, value);
+            }
+        }
+    }
+    
+    public void sub(Matrix other) {
+        if (getRows() != other.getRows() || getColumns() != other.getColumns()) {
+            throw new IncompatibleMatricesException("Matrices must be of the same order " +
+                    "to perform this operation");
+        }
+        
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getColumns(); j++) {
+                double value = getValue(i, j) - other.getValue(i, j);
+                setValue(i, j, value);
+            }
+        }
+    }
     
     public Matrix copy() {
         Matrix copy = new Matrix(rows, columns);
