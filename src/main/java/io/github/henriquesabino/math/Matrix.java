@@ -5,6 +5,7 @@ import io.github.henriquesabino.math.exception.IncompatibleMatricesException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class Matrix implements Serializable {
     
@@ -168,6 +169,24 @@ public class Matrix implements Serializable {
             for (int j = 0; j < getColumns(); j++) {
                 double value = getValue(i, j) / scalar;
                 setValue(i, j, value);
+            }
+        }
+    }
+    
+    public void randomize() {
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getColumns(); j++) {
+                //values between -1 and 1
+                setValue(i, j, Math.random() * 2 - 1);
+            }
+        }
+    }
+    
+    public void applyForEach(Function<Double, Double> function) {
+        
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getColumns(); j++) {
+                setValue(i, j, function.apply(getValue(i, j)));
             }
         }
     }
