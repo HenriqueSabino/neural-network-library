@@ -65,15 +65,9 @@ public class Matrix implements Serializable {
     }
     
     public static Matrix scalarMult(Matrix a, double scalar) {
-        Matrix result = new Matrix(a.getRows(), a.getColumns());
+        Matrix result = a.copy();
         
-        for (int i = 0; i < result.getRows(); i++) {
-            for (int j = 0; j < result.getColumns(); j++) {
-                
-                double value = scalar * a.getValue(i, j);
-                result.setValue(i, j, value);
-            }
-        }
+        result.applyForEach(x -> x * scalar);
         
         return result;
     }
@@ -84,15 +78,9 @@ public class Matrix implements Serializable {
             throw new IllegalArgumentException("Cannot divide by zero");
         }
         
-        Matrix result = new Matrix(a.getRows(), a.getColumns());
+        Matrix result = a.copy();
         
-        for (int i = 0; i < result.getRows(); i++) {
-            for (int j = 0; j < result.getColumns(); j++) {
-                
-                double value = a.getValue(i, j) / scalar;
-                result.setValue(i, j, value);
-            }
-        }
+        result.applyForEach(x -> x / scalar);
         
         return result;
     }
@@ -113,6 +101,26 @@ public class Matrix implements Serializable {
                     result.setValue(i, j, value);
                 }
             }
+        }
+        
+        return result;
+    }
+    
+    public static Matrix fromArrayToColumnMatrix(double[] array) {
+        Matrix result = new Matrix(array.length, 1);
+        
+        for (int i = 0; i < array.length; i++) {
+            result.setValue(i, 0, array[i]);
+        }
+        
+        return result;
+    }
+    
+    public static Matrix fromArrayToRowMatrix(double[] array) {
+        Matrix result = new Matrix(1, array.length);
+        
+        for (int i = 0; i < array.length; i++) {
+            result.setValue(0, i, array[i]);
         }
         
         return result;
@@ -151,12 +159,7 @@ public class Matrix implements Serializable {
     }
     
     public void scalarMult(double scalar) {
-        for (int i = 0; i < getRows(); i++) {
-            for (int j = 0; j < getColumns(); j++) {
-                double value = scalar * getValue(i, j);
-                setValue(i, j, value);
-            }
-        }
+        applyForEach(x -> x * scalar);
     }
     
     public void scalarDiv(double scalar) {
@@ -165,21 +168,11 @@ public class Matrix implements Serializable {
             throw new IllegalArgumentException("Cannot divide by zero");
         }
         
-        for (int i = 0; i < getRows(); i++) {
-            for (int j = 0; j < getColumns(); j++) {
-                double value = getValue(i, j) / scalar;
-                setValue(i, j, value);
-            }
-        }
+        applyForEach(x -> x / scalar);
     }
     
     public void randomize() {
-        for (int i = 0; i < getRows(); i++) {
-            for (int j = 0; j < getColumns(); j++) {
-                //values between -1 and 1
-                setValue(i, j, Math.random() * 2 - 1);
-            }
-        }
+        applyForEach(p -> Math.random() * 2 - 1);
     }
     
     public void applyForEach(Function<Double, Double> function) {
@@ -203,6 +196,20 @@ public class Matrix implements Serializable {
         return copy;
     }
     
+    public double[] toArray() {
+        //Transforms the matrix to an array, but the matrix dimentions are lost
+        double[] result = new double[getRows() * getColumns()];
+        
+        for (int i = 0; i < getRows(); i++) {
+            for (int j = 0; j < getColumns(); j++) {
+                int index = j + i * getColumns();
+                result[index] = getValue(i, j);
+            }
+        }
+        
+        return result;
+    }
+    
     public int getRows() {
         return rows;
     }
@@ -215,8 +222,8 @@ public class Matrix implements Serializable {
         return matrix[row][column];
     }
     
-    public void setValue(int row, int columns, double value) {
-        matrix[row][columns] = value;
+    public void setValue(int row, int column, double value) {
+        matrix[row][column] = value;
     }
     
     @Override
