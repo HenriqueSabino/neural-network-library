@@ -1,74 +1,55 @@
 package io.github.henriquesabino.application;
 
-import io.github.henriquesabino.math.Matrix;
 import io.github.henriquesabino.neunet.ga.NeuralNetwork;
+
+import java.io.IOException;
 
 public class Test {
     
     public static void main(String[] args) {
-        NeuralNetwork neuralNetwork = new NeuralNetwork(3, new int[]{3, 2}, 2, 0.1);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(2, new int[]{2, 2}, 2, 0.1);
         
-        System.out.println("WEIGHTS:");
-        for (int i = 0; i < neuralNetwork.getWeights().length; i++) {
-            if (i < neuralNetwork.getWeights().length - 1) {
-                System.out.printf("Hidden layer %d weights%n", i);
-                System.out.println();
-                printMatrix(neuralNetwork.getWeights()[i]);
-            } else {
-                System.out.println("Output layer weights");
-                System.out.println();
-                printMatrix(neuralNetwork.getWeights()[i]);
-            }
+        double[] inputs = new double[]{1, 0};
+        
+        double[] outputs = neuralNetwork.predict(inputs);
+        
+        try {
+            neuralNetwork.debugNeuNet("out/neunet.txt");
+            neuralNetwork.saveNeuNet("out/neunet.nnt");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         
-        System.out.println("\nBIASES:");
-        for (int i = 0; i < neuralNetwork.getBiases().length; i++) {
-            if (i < neuralNetwork.getBiases().length - 1) {
-                System.out.printf("Hidden layer %d biases%n", i);
-                System.out.println();
-                printMatrix(neuralNetwork.getBiases()[i]);
-            } else {
-                System.out.println("Output layer biases");
-                System.out.println();
-                printMatrix(neuralNetwork.getBiases()[i]);
+        System.out.println("Test 1:");
+        System.out.print("[");
+        for (int i = 0; i < outputs.length; i++) {
+            System.out.print(outputs[i]);
+            
+            if (i < outputs.length - 1) {
+                System.out.print(", ");
             }
+        }
+        System.out.println("]");
+        System.out.println();
+        
+        System.out.println("Testing loading from file:");
+        
+        NeuralNetwork neuralNetwork1 = null;
+        try {
+            neuralNetwork1 = NeuralNetwork.loadNeuNet("out/neunet.nnt");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
         
-        System.out.println("\nSUMS:");
-        for (int i = 0; i < neuralNetwork.getSums().length; i++) {
-            if (i < neuralNetwork.getSums().length - 1) {
-                System.out.printf("Hidden layer %d sums%n", i);
-                System.out.println();
-                printMatrix(neuralNetwork.getSums()[i]);
-            } else {
-                System.out.println("Output layer sums");
-                System.out.println();
-                printMatrix(neuralNetwork.getSums()[i]);
+        outputs = neuralNetwork1.predict(inputs);
+        System.out.print("[");
+        for (int i = 0; i < outputs.length; i++) {
+            System.out.print(outputs[i]);
+            
+            if (i < outputs.length - 1) {
+                System.out.print(", ");
             }
         }
-        
-        System.out.println("\nNEURONS:");
-        for (int i = 0; i < neuralNetwork.getNeurons().length; i++) {
-            if (i < neuralNetwork.getNeurons().length - 1) {
-                System.out.printf("Hidden layer %d neurons%n", i);
-                System.out.println();
-                printMatrix(neuralNetwork.getNeurons()[i]);
-            } else {
-                System.out.println("Output layer neurons");
-                System.out.println();
-                printMatrix(neuralNetwork.getNeurons()[i]);
-            }
-        }
-    }
-    
-    private static void printMatrix(Matrix matrix) {
-        for (int i = 0; i < matrix.getRows(); i++) {
-            System.out.print("| ");
-            for (int j = 0; j < matrix.getColumns(); j++) {
-                System.out.printf("%.2f", matrix.getValue(i, j));
-                System.out.print(" | ");
-            }
-            System.out.println();
-        }
+        System.out.println("]");
     }
 }

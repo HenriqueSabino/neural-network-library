@@ -244,4 +244,21 @@ public class Matrix implements Serializable {
     }
     
     //endregion
+    
+    
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        for (int i = 0; i < getRows(); i++) {
+            stringBuilder.append("| ");
+            for (int j = 0; j < getColumns(); j++) {
+                stringBuilder.append(getValue(i, j));
+                stringBuilder.append(" | ");
+            }
+            stringBuilder.append("\n");
+        }
+        
+        return stringBuilder.toString();
+    }
 }
