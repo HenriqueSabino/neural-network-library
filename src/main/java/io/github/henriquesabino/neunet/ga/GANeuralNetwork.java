@@ -1,6 +1,9 @@
 package io.github.henriquesabino.neunet.ga;
 
+import io.github.henriquesabino.math.Matrix;
 import io.github.henriquesabino.neunet.NeuralNetwork;
+
+import java.util.Random;
 
 public class GANeuralNetwork extends NeuralNetwork {
     
@@ -25,6 +28,20 @@ public class GANeuralNetwork extends NeuralNetwork {
         }
         
         return copy;
+    }
+    
+    public void mutate() {
+        for (Matrix weight : weights) {
+            Random rnd = new Random();
+            //Tweaking the values with a number between -1 and 1, with gaussian distribution
+            weight.applyForEach(x -> (Math.random() < mutationRate) ? x + rnd.nextGaussian() * 2 - 1 : x);
+        }
+        
+        for (Matrix bias : biases) {
+            Random rnd = new Random();
+            //Tweaking the values with a number between -1 and 1, with gaussian distribution
+            bias.applyForEach(x -> (Math.random() < mutationRate) ? x + rnd.nextGaussian() * 2 - 1 : x);
+        }
     }
     
     //Sometimes it's interesting to change the mutation rate over time
