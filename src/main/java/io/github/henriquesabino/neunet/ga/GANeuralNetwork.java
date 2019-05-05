@@ -16,6 +16,17 @@ public class GANeuralNetwork extends NeuralNetwork {
         this.mutationRate = mutationRate;
     }
     
+    //fake cross over to test the library
+    public GANeuralNetwork(GANeuralNetwork parent) {
+        super(parent.inputsNum, parent.hiddenLayersSize, parent.outputsNum);
+        this.mutationRate = parent.mutationRate;
+        
+        weights = parent.weights;
+        biases = parent.biases;
+        
+        mutate();
+    }
+    
     public GANeuralNetwork copy() {
         GANeuralNetwork copy = new GANeuralNetwork(inputsNum, hiddenLayersSize.clone(), outputsNum, mutationRate);
         
