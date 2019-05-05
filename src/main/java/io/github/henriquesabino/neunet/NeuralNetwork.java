@@ -1,4 +1,4 @@
-package io.github.henriquesabino.neunet.ga;
+package io.github.henriquesabino.neunet;
 
 import io.github.henriquesabino.math.Matrix;
 
@@ -8,18 +8,17 @@ import java.security.InvalidParameterException;
 public class NeuralNetwork implements Serializable {
     
     private static final long serialVersionUID = 3627504448716871173L;
-    private int inputsNum, hiddenLayersNum, outputsNum, netSize;
-    private double mutationRate;
-    private int[] hiddenLayersSize;
-    
+    protected int inputsNum, hiddenLayersNum, outputsNum;
+    protected int[] hiddenLayersSize;
+    protected Matrix[] weights;
+    protected Matrix[] biases;
+    private int netSize;
     //The results
     private Matrix[] neurons;
-    private Matrix[] weights;
-    private Matrix[] biases;
     //Used to store the results of the calculations before the activation function
     private Matrix[] sums;
     
-    public NeuralNetwork(int inputsNum, int[] hiddenLayersSize, int outputsNum, double mutationRate) {
+    public NeuralNetwork(int inputsNum, int[] hiddenLayersSize, int outputsNum) {
         
         if (inputsNum == 0) {
             throw new InvalidParameterException("There must be at least one input to the neural network");
@@ -30,16 +29,11 @@ public class NeuralNetwork implements Serializable {
         if (outputsNum == 0) {
             throw new InvalidParameterException("The neural network must output at least one value");
         }
-        if (mutationRate <= 0 || mutationRate > 1) {
-            throw new InvalidParameterException("The mutation rate must be a value between the range " +
-                    "(0, 1]");
-        }
         
         this.inputsNum = inputsNum;
         this.hiddenLayersNum = hiddenLayersSize.length;
         this.hiddenLayersSize = hiddenLayersSize.clone();
         this.outputsNum = outputsNum;
-        this.mutationRate = mutationRate;
         
         netSize = hiddenLayersNum + 1;
         
