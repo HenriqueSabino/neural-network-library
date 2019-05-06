@@ -11,8 +11,9 @@ public class Missile {
     
     private PVector pos, vel;
     private int moveQuantity, speed, color;
-    private float fitness, angle, multiplier;
-    private boolean dead = false, winner = false, changedCol = false;
+    private float fitness;
+    private float angle;
+    private boolean dead = false, winner = false;
     
     private PVector[] obstacle;
     private PVector target;
@@ -40,6 +41,7 @@ public class Missile {
     }
     
     public Missile(List<Missile> prevGen, int moveQuantity, int speed, PVector[] obstacle, PVector target) {
+        this.moveQuantity = moveQuantity;
         this.speed = speed;
         
         //negative goes upwards
@@ -58,8 +60,11 @@ public class Missile {
         fitness = 1 / (Utils.sq(Utils.dist(pos.x, pos.y, target.x, target.y)));
         if (dead)
             fitness /= 100;
-        if (winner)
-            fitness *= multiplier;
+        
+        //the longer it takes to reach the target
+        //the less the fitness
+        float multiplier = (moveQuantity > 0 && !dead) ? moveQuantity * 100 : 1;
+        fitness *= multiplier;
     }
     
     public void move() {
@@ -78,6 +83,7 @@ public class Missile {
             vel.add(thrust).setMag(speed);
             pos.add(vel);
             angle = vel.heading();
+            moveQuantity--;
         }
     }
     
@@ -85,11 +91,11 @@ public class Missile {
         if ((pos.x >= obstacle[0].x && pos.y <= obstacle[0].y)) {
             if ((pos.x <= obstacle[1].x && pos.y >= obstacle[1].y)) {
                 dead = true;
+                moveQuantity = 200;
             }
         }
         if (Utils.dist(pos.x, pos.y, target.x, target.y) <= 28) {
             winner = true;
-            multiplier = 400 / (Program.frameCount % 200);
             Program.completed = true;
         }
     }
@@ -104,10 +110,11 @@ public class Missile {
     }
     
     private void setColorBasedOnParents(int parentsColor) {
+        //changing 10% of the color just to visualize the original gene color
         int a = 255;
-        int r = (Utils.floor(Utils.random(255)) + (parentsColor >> 16) & 0xFF) / 2;
-        int g = (Utils.floor(Utils.random(255)) + (parentsColor >> 8) & 0xFF) / 2;
-        int b = (Utils.floor(Utils.random(255)) + parentsColor & 0xFF) / 2;
+        int r = Utils.floor((float) (0.1 * Utils.floor(Utils.random(255)) + 0.9 * ((parentsColor >> 16) & 0xFF)));
+        int g = Utils.floor((float) (0.1 * Utils.floor(Utils.random(255)) + 0.9 * ((parentsColor >> 8) & 0xFF)));
+        int b = Utils.floor((float) (0.1 * Utils.floor(Utils.random(255)) + 0.9 * ((parentsColor) & 0xFF)));
         
         setColor(a << 24 | r << 16 | g << 8 | b);
     }
@@ -163,6 +170,10 @@ public class Missile {
     
     public void setColor(int color) {
         this.color = color;
+    }
+    
+    public int getMoveQuantity() {
+        return moveQuantity;
     }
     
     private GANeuralNetwork getBrain() {

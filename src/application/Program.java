@@ -16,6 +16,8 @@ public class Program extends PApplet {
     private PVector[] obstacle;
     private List<Missile> generation;
     private int populationSize = 100, generationCount = 1;
+    //starts with 200 to cancel out on the text field
+    private int highestScore = 0;
     
     
     public static void main(String[] args) {
@@ -46,12 +48,12 @@ public class Program extends PApplet {
     
     @Override
     public void draw() {
-        frameCount++;
-        
-        if (frameCount % 200 == 0) {
+        if (frameCount % 200 == 0 && frameCount != 0) {
             repopulate();
         }
         update();
+        
+        frameCount++;
     }
     
     private void update() {
@@ -62,6 +64,7 @@ public class Program extends PApplet {
         textAlign(LEFT, CENTER);
         text("generation - " + generationCount, 15, 25);
         text("population - " + populationSize, 15, 50);
+        text("prevGen high score - " + String.format("%d", highestScore), 15, height - 25);
         if (!completed)
             fill(255, 0, 0);
         else
@@ -83,9 +86,13 @@ public class Program extends PApplet {
     
     private void repopulate() {
         float sum = 0;
+        highestScore = 0;
         for (Missile m : generation) {
             m.calculateFitness();
             sum += m.getFitness();
+            
+            if (m.getMoveQuantity() > highestScore && m.getMoveQuantity() != 200)
+                highestScore = m.getMoveQuantity();
         }
         
         //it becomes a percentage of the total fitness of the generation
