@@ -12,7 +12,7 @@ public class NeuralNetwork implements Serializable {
     protected int[] hiddenLayersSize;
     protected Matrix[] weights;
     protected Matrix[] biases;
-    private int netSize;
+    protected int netSize;
     //The results
     private Matrix[] neurons;
     //Used to store the results of the calculations before the activation function

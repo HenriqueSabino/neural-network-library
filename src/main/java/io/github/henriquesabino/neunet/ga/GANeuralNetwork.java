@@ -3,6 +3,7 @@ package io.github.henriquesabino.neunet.ga;
 import io.github.henriquesabino.math.Matrix;
 import io.github.henriquesabino.neunet.NeuralNetwork;
 
+import java.util.List;
 import java.util.Random;
 
 public class GANeuralNetwork extends NeuralNetwork {
@@ -16,13 +17,21 @@ public class GANeuralNetwork extends NeuralNetwork {
         this.mutationRate = mutationRate;
     }
     
-    //fake cross over to test the library
-    public GANeuralNetwork(GANeuralNetwork parent) {
-        super(parent.inputsNum, parent.hiddenLayersSize, parent.outputsNum);
-        this.mutationRate = parent.mutationRate;
+    public GANeuralNetwork(List<GANeuralNetwork> parents) {
+        super(parents.get(0).inputsNum, parents.get(0).hiddenLayersSize, parents.get(0).outputsNum);
+        this.mutationRate = parents.get(0).mutationRate;
         
-        weights = parent.weights;
-        biases = parent.biases;
+        for (int i = 0; i < netSize; i++) {
+            
+            double rnd = Math.random();
+            //randomly choosing a parent
+            //because the range of rnd is [0,1) we need to multiply by the list size
+            //and floor the result to get a fair distribution
+            int index = (int) Math.floor(rnd * parents.size());
+            
+            weights[i] = parents.get(index).weights[i];
+            biases[i] = parents.get(index).biases[i];
+        }
         
         mutate();
     }
