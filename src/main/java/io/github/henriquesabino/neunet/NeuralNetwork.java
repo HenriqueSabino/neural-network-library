@@ -14,9 +14,9 @@ public class NeuralNetwork implements Serializable {
     protected Matrix[] biases;
     protected int netSize;
     //The results
-    private Matrix[] neurons;
+    protected Matrix[] neurons;
     //Used to store the results of the calculations before the activation function
-    private Matrix[] sums;
+    protected Matrix[] sums;
     
     public NeuralNetwork(int inputsNum, int[] hiddenLayersSize, int outputsNum) {
         
@@ -84,7 +84,7 @@ public class NeuralNetwork implements Serializable {
         biases[netSize - 1].randomize();
     }
     
-    private void forwardPropag(double[] inputs) {
+    protected void forwardPropag(double[] inputs) {
         Matrix inputsMat = Matrix.fromArrayToColumnMatrix(inputs);
         
         //the first hidden layer
@@ -190,11 +190,11 @@ public class NeuralNetwork implements Serializable {
         fileWriter.close();
     }
     
-    private double leakyReLU(double x) {
-        return (x < 0) ? 0.01 * x : x;
+    protected double leakyReLU(double x) {
+        return Math.max(0.01 * x, x);
     }
     
-    private double sig(double x) {
+    protected double sig(double x) {
         return 1 / (1 + Math.exp(-x));
     }
 }
