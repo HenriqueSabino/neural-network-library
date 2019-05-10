@@ -1,24 +1,11 @@
 package application;
 
-import entities.Missile;
+import io.github.henriquesabino.neunet.bp.BPNeuralNetwork;
 import processing.core.PApplet;
-import processing.core.PVector;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Program extends PApplet {
     
-    public static int width, height, frameCount = 0;
-    public static boolean completed;
-    
-    private PVector target;
-    private PVector[] obstacle;
-    private List<Missile> generation;
-    private int populationSize = 100, generationCount = 1;
-    //starts with 200 to cancel out on the text field
-    private int highestScore = 0;
-    
+    private BPNeuralNetwork neuralNetwork = new BPNeuralNetwork(2, new int[]{8, 4}, 1, 0.005);
     
     public static void main(String[] args) {
         PApplet.main("application.Program");
@@ -26,104 +13,45 @@ public class Program extends PApplet {
     
     @Override
     public void settings() {
-        
-        width = 600;
-        height = 600;
-        
-        size(width, height);
-        
-        target = new PVector(width / 2, 100);
-        
-        obstacle = new PVector[2];
-        obstacle[0] = new PVector(width / 2 - 200, height / 2 + 13);
-        obstacle[1] = new PVector(width / 2 + 200, height / 2 - 13);
-        
-        generation = new ArrayList<>();
-        
-        for (int i = 0; i < populationSize; i++) {
-            
-            generation.add(new Missile(200, 5, obstacle, target));
-        }
+        size(400, 400);
     }
     
     @Override
     public void draw() {
-        if (frameCount % 200 == 0 && frameCount != 0) {
-            repopulate();
-        }
-        update();
+        loadPixels();
         
-        frameCount++;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int index = x + y * width;
+                
+                double xInp = x / (double) width;
+                double yInp = y / (double) height;
+                
+                pixels[index] = color((float) neuralNetwork.predict(new double[]{xInp, yInp})[0] * 255);
+            }
+        }
+        
+        updatePixels();
+        trainNeuNet();
     }
     
-    private void update() {
-        background(21);
-        noStroke();
-        fill(255);
-        textSize(20);
-        textAlign(LEFT, CENTER);
-        text("generation - " + generationCount, 15, 25);
-        text("population - " + populationSize, 15, 50);
-        text("prevGen high score - " + String.format("%d", highestScore), 15, height - 25);
-        if (!completed)
-            fill(255, 0, 0);
-        else
-            fill(0, 255, 0);
-        text("completed - " + completed, 15, 75);
-        fill(51);
-        rectMode(CENTER);
-        rect(width / 2, height / 2, 400, 26);
-        fill(255, 0, 0);
-        ellipse(target.x, target.y, 50, 50);
-        fill(255);
-        ellipse(target.x, target.y, 35, 35);
-        fill(255, 0, 0);
-        ellipse(target.x, target.y, 15, 15);
-        for (Missile m : generation) {
-            showMissile(m);
-        }
+    @Override
+    public void mousePressed() {
+        println("Cost: " + neuralNetwork.getCost());
+        printArray(neuralNetwork.predict(new double[]{0, 0}));
+        printArray(neuralNetwork.predict(new double[]{1, 0}));
+        printArray(neuralNetwork.predict(new double[]{1, 1}));
+        printArray(neuralNetwork.predict(new double[]{0, 1}));
     }
     
-    private void repopulate() {
-        float sum = 0;
-        highestScore = 0;
-        for (Missile m : generation) {
-            m.calculateFitness();
-            sum += m.getFitness();
-            
-            if (m.getMoveQuantity() > highestScore && m.getMoveQuantity() != 200)
-                highestScore = m.getMoveQuantity();
+    private void trainNeuNet() {
+        for (int i = 0; i < 10000; i++) {
+            for (int j = 0; j < 2; j++) {
+                for (int k = 0; k < 2; k++) {
+                    double expected = Math.abs(j - k);
+                    neuralNetwork.train(new double[]{j, k}, new double[]{expected});
+                }
+            }
         }
-        
-        //it becomes a percentage of the total fitness of the generation
-        for (Missile m : generation) {
-            m.setFitness(m.getFitness() / sum);
-        }
-        
-        //repopulating
-        List<Missile> temp = new ArrayList<>();
-        
-        for (int i = 0; i < populationSize; i++) {
-            temp.add(new Missile(generation, 200, 5, obstacle, target));
-        }
-        
-        generation = temp;
-        generationCount++;
-        completed = false;
-    }
-    
-    private void showMissile(Missile missile) {
-        
-        fill(255, 100);
-        //rotates the Missile to its velocity angle
-        pushMatrix();
-        missile.move();
-        translate(missile.getPos().x, missile.getPos().y);
-        rotate(-(HALF_PI - missile.getAngle()));
-        rect(0, -16, 8, 40);
-        //draws a "head"
-        fill(missile.getColor());
-        rect(0, 0, 8, 8);
-        popMatrix();
     }
 }
