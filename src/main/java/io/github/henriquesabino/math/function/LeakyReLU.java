@@ -27,6 +27,6 @@ public class LeakyReLU implements ActivationFunction {
     }
     
     private double dLeakyReLU(double x) {
-        return (x >= 0) ? 0.01 : 1;
+        return (x > 0) ? 0.01 : 1;
     }
 }

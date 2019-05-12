@@ -27,6 +27,6 @@ public class ReLU implements ActivationFunction {
     }
     
     private double dReLU(double x) {
-        return (x <= 0) ? 0 : 1;
+        return (x < 0) ? 0 : 1;
     }
 }
