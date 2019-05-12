@@ -14,6 +14,11 @@ public class Program extends PApplet {
     @Override
     public void settings() {
         size(400, 400);
+        neuralNetwork.setActivationFunctionsForHiddenLayer(new String[]{
+                "relu", "sigmoid"
+        });
+        
+        neuralNetwork.setActivationFunctionsForOutputLayer("leaky_relu");
     }
     
     @Override

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SmartRockets.iml" filepath="$PROJECT_DIR$/SmartRockets.iml" />
+      <module fileurl="file://$PROJECT_DIR$/XOR.iml" filepath="$PROJECT_DIR$/XOR.iml" />
     </modules>
   </component>
 </project>
