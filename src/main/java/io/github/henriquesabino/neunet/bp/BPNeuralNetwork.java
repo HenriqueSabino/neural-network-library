@@ -1,6 +1,7 @@
 package io.github.henriquesabino.neunet.bp;
 
 import io.github.henriquesabino.math.Matrix;
+import io.github.henriquesabino.math.services.Function;
 import io.github.henriquesabino.neunet.NeuralNetwork;
 
 public class BPNeuralNetwork extends NeuralNetwork {
@@ -24,6 +25,13 @@ public class BPNeuralNetwork extends NeuralNetwork {
     
     public void train(double[] inputs, double[] expected) {
         
+        for (Function function : functions) {
+            if (function == null) {
+                throw new IllegalStateException("You must define the activation functions before " +
+                        "using the neural network!");
+            }
+        }
+        
         double[] predicted = predict(inputs);
         
         calculateCosts(expected, predicted);
@@ -45,12 +53,15 @@ public class BPNeuralNetwork extends NeuralNetwork {
         //We have to iterate by the columns first because they determine the neuron
         //of the previous layer that the weight is applied to
         for (int l = netSize - 2; l >= 0; l--) {
+            
+            Matrix derivedMat = functionApplier.getFunction(functions[l]).derivative(sums[l + 1]);
+            
             for (int n = 0; n < weights[l + 1].getColumns(); n++) {
                 
                 double value = 0;
                 
                 for (int w = 0; w < weights[l + 1].getRows(); w++) {
-                    value += weights[l + 1].getValue(w, n) * dReLU(sums[l + 1].getValue(w, 0))
+                    value += weights[l + 1].getValue(w, n) * derivedMat.getValue(w, 0)
                             * costs[l + 1].getValue(w, 0);
                 }
                 
@@ -62,27 +73,23 @@ public class BPNeuralNetwork extends NeuralNetwork {
     private void adjustWeights(double[] inputs) {
         
         for (int l = 0; l < weights.length; l++) {
+            
+            Matrix derivedMat = functionApplier.getFunction(functions[l]).derivative(sums[l]);
+            
             for (int i = 0; i < weights[l].getRows(); i++) {
                 for (int j = 0; j < weights[l].getColumns(); j++) {
                     
                     //If it is the first layer
                     if (l == 0) {
-                        double value = inputs[j] * dReLU(sums[l].getValue(i, 0)) * costs[l].getValue(i, 0);
+                        double value = inputs[j] * derivedMat.getValue(i, 0) * costs[l].getValue(i, 0);
                         value *= -learningRate;
                         value += weights[l].getValue(i, j);
                         weights[l].setValue(i, j, value);
                     } else {
-                        if (l != netSize - 1) {
-                            double value = neurons[l - 1].getValue(j, 0) * dReLU(sums[l].getValue(i, 0)) * costs[l].getValue(i, 0);
-                            value *= -learningRate;
-                            value += weights[l].getValue(i, j);
-                            weights[l].setValue(i, j, value);
-                        } else {
-                            double value = neurons[l - 1].getValue(j, 0) * dSig(sums[l].getValue(i, 0)) * costs[l].getValue(i, 0);
-                            value *= -learningRate;
-                            value += weights[l].getValue(i, j);
-                            weights[l].setValue(i, j, value);
-                        }
+                        double value = neurons[l - 1].getValue(j, 0) * derivedMat.getValue(i, 0) * costs[l].getValue(i, 0);
+                        value *= -learningRate;
+                        value += weights[l].getValue(i, j);
+                        weights[l].setValue(i, j, value);
                     }
                 }
             }
@@ -92,34 +99,16 @@ public class BPNeuralNetwork extends NeuralNetwork {
     private void adjustBiases() {
         
         for (int l = 0; l < biases.length; l++) {
+            
+            Matrix derivedMat = functionApplier.getFunction(functions[l]).derivative(sums[l]);
+            
             for (int n = 0; n < biases[l].getRows(); n++) {
-                
-                if (l != netSize - 1) {
-                    
-                    double value = dReLU(sums[l].getValue(n, 0)) * costs[l].getValue(n, 0);
-                    value *= -learningRate;
-                    value += biases[l].getValue(n, 0);
-                    biases[l].setValue(n, 0, value);
-                    
-                } else {
-                    double value = dSig(sums[l].getValue(n, 0)) * costs[l].getValue(n, 0);
-                    value *= -learningRate;
-                    value += biases[l].getValue(n, 0);
-                    biases[l].setValue(n, 0, value);
-                }
+                double value = derivedMat.getValue(n, 0) * costs[l].getValue(n, 0);
+                value *= -learningRate;
+                value += biases[l].getValue(n, 0);
+                biases[l].setValue(n, 0, value);
             }
         }
-    }
-    
-    private double dSig(double x) {
-        return sig(x) * (1 - sig(x));
-    }
-    
-    private double dReLU(double x) {
-        if (x < 0)
-            return 0.01;
-        else
-            return 1;
     }
     
     public double getCost() {

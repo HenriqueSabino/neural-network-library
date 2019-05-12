@@ -1,6 +1,8 @@
 package io.github.henriquesabino.neunet;
 
 import io.github.henriquesabino.math.Matrix;
+import io.github.henriquesabino.math.services.Function;
+import io.github.henriquesabino.math.services.FunctionApplier;
 
 import java.io.*;
 import java.security.InvalidParameterException;
@@ -17,6 +19,8 @@ public class NeuralNetwork implements Serializable {
     protected Matrix[] neurons;
     //Used to store the results of the calculations before the activation function
     protected Matrix[] sums;
+    protected FunctionApplier functionApplier;
+    protected Function[] functions;
     
     public NeuralNetwork(int inputsNum, int[] hiddenLayersSize, int outputsNum) {
         
@@ -43,6 +47,8 @@ public class NeuralNetwork implements Serializable {
         sums = new Matrix[netSize];
         
         initializeMatrices();
+        functionApplier = new FunctionApplier();
+        functions = new Function[netSize];
     }
     
     public static NeuralNetwork loadNeuNet(String path) throws IOException, ClassNotFoundException {
@@ -84,27 +90,90 @@ public class NeuralNetwork implements Serializable {
         biases[netSize - 1].randomize();
     }
     
-    protected void forwardPropag(double[] inputs) {
+    private void forwardPropag(double[] inputs) {
         Matrix inputsMat = Matrix.fromArrayToColumnMatrix(inputs);
         
         //the first hidden layer
         //sums = weights * inputs + biases
+        if (functions[0] == null) {
+            throw new IllegalStateException("You must define the activation functions before " +
+                    "using the neural network!");
+        }
+        
         sums[0] = Matrix.add(Matrix.mult(weights[0], inputsMat), biases[0]);
         neurons[0] = sums[0].copy();
-        neurons[0].applyForEach(this::leakyReLU);
+        neurons[0] = functionApplier.getFunction(functions[0]).apply(neurons[0]);
         
         for (int i = 1; i < netSize; i++) {
+            
+            if (functions[i] == null) {
+                throw new IllegalStateException("You must define the activation functions before " +
+                        "using the neural network!");
+            }
+            
             sums[i] = Matrix.add(Matrix.mult(weights[i], neurons[i - 1]), biases[i]);
             neurons[i] = sums[i].copy();
             
-            //the hidden layers use leaky ReLu, but the output layer uses sigmoid to constrain the
-            //output to a value between 0 and 1
-            if (i < netSize - 1) {
-                neurons[i].applyForEach(this::leakyReLU);
-            } else {
-                neurons[i].applyForEach(this::sig);
-            }
+            neurons[i] = functionApplier.getFunction(functions[i]).apply(neurons[i]);
         }
+    }
+    
+    public void setActivationFunctionsForHiddenLayer(Function[] functions) {
+        if (functions.length != netSize - 1) {
+            throw new IllegalArgumentException("The functions array must be the same size as the hidden layer " +
+                    "size");
+        }
+        
+        for (int i = 0; i < functions.length; i++) {
+            this.functions[i] = functions[i];
+        }
+    }
+    
+    public void setActivationFunctionsForHiddenLayer(Function function) {
+        if (function == null) {
+            throw new IllegalArgumentException("Function cannot be set to null");
+        }
+        
+        for (int i = 0; i < functions.length - 1; i++) {
+            functions[i] = function;
+        }
+    }
+    
+    public void setActivationFunctionsForHiddenLayer(String[] functions) {
+        if (functions.length != netSize - 1) {
+            throw new IllegalArgumentException("The functions array must be the same size as the hidden layer " +
+                    "size");
+        }
+        
+        for (int i = 0; i < functions.length; i++) {
+            this.functions[i] = Function.valueOf(functions[i].toUpperCase());
+        }
+    }
+    
+    public void setActivationFunctionsForHiddenLayer(String function) {
+        if (function == null) {
+            throw new IllegalArgumentException("Function cannot be set to null");
+        }
+        
+        for (int i = 0; i < functions.length - 1; i++) {
+            functions[i] = Function.valueOf(function.toUpperCase());
+        }
+    }
+    
+    public void setActivationFunctionsForOutputLayer(Function function) {
+        if (function == null) {
+            throw new IllegalArgumentException("Function cannot be set to null");
+        }
+        
+        functions[netSize - 1] = function;
+    }
+    
+    public void setActivationFunctionsForOutputLayer(String function) {
+        if (function == null) {
+            throw new IllegalArgumentException("Function cannot be set to null");
+        }
+        
+        functions[netSize - 1] = Function.valueOf(function.toUpperCase());
     }
     
     public double[] predict(double[] inputs) {
@@ -188,13 +257,5 @@ public class NeuralNetwork implements Serializable {
         
         bw.close();
         fileWriter.close();
-    }
-    
-    protected double leakyReLU(double x) {
-        return Math.max(0.01 * x, x);
-    }
-    
-    protected double sig(double x) {
-        return 1 / (1 + Math.exp(-x));
     }
 }

@@ -4,16 +4,12 @@ import io.github.henriquesabino.math.function.*;
 
 public class FunctionApplier {
     
-    private LeakyReLU leakyReLU;
-    private ReLU reLU;
-    private Sigmoid sigmoid;
-    private Softmax softmax;
+    private static LeakyReLU leakyReLU = new LeakyReLU();
+    private static ReLU reLU = new ReLU();
+    private static Sigmoid sigmoid = new Sigmoid();
+    private static Softmax softmax = new Softmax();
     
     public FunctionApplier() {
-        leakyReLU = new LeakyReLU();
-        reLU = new ReLU();
-        sigmoid = new Sigmoid();
-        softmax = new Softmax();
     }
     
     public ActivationFunction getFunction(Function function) {
