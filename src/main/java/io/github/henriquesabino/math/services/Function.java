@@ -1,7 +1,7 @@
 package io.github.henriquesabino.math.services;
 
 public enum Function {
-    LEAKY_RElU,
+    LEAKY_RELU,
     RELU,
     SIGMOID,
     SOFTMAX;

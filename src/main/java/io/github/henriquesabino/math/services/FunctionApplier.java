@@ -16,7 +16,7 @@ public class FunctionApplier {
         //the switch function does not require the break keyword here because
         //the return already breaks the statement
         switch (function) {
-            case LEAKY_RElU:
+            case LEAKY_RELU:
                 return leakyReLU;
             case RELU:
                 return reLU;
