@@ -5,7 +5,7 @@ import processing.core.PApplet;
 
 public class Program extends PApplet {
     
-    private BPNeuralNetwork neuralNetwork = new BPNeuralNetwork(2, new int[]{8, 4}, 1, 0.005);
+    private BPNeuralNetwork neuralNetwork = new BPNeuralNetwork(2, new int[]{8}, 1, 0.01);
     
     public static void main(String[] args) {
         PApplet.main("application.Program");
@@ -13,9 +13,9 @@ public class Program extends PApplet {
     
     @Override
     public void settings() {
-        size(400, 400);
+        size(600, 600);
         neuralNetwork.setActivationFunctionsForHiddenLayer(new String[]{
-                "relu", "sigmoid"
+                "sigmoid"
         });
         
         neuralNetwork.setActivationFunctionsForOutputLayer("leaky_relu");
@@ -50,13 +50,16 @@ public class Program extends PApplet {
     }
     
     private void trainNeuNet() {
-        for (int i = 0; i < 10000; i++) {
-            for (int j = 0; j < 2; j++) {
-                for (int k = 0; k < 2; k++) {
-                    double expected = Math.abs(j - k);
-                    neuralNetwork.train(new double[]{j, k}, new double[]{expected});
+        for (int epochs = 0; epochs < 100; epochs++) {
+            for (int batch = 0; batch < 32; batch++) {
+                for (int j = 0; j < 2; j++) {
+                    for (int k = 0; k < 2; k++) {
+                        double expected = 1 - Math.abs(j - k);
+                        neuralNetwork.train(new double[]{j, k}, new double[]{expected});
+                    }
                 }
             }
+            neuralNetwork.apply();
         }
     }
 }
