@@ -54,7 +54,7 @@ public class Program extends PApplet {
             for (int batch = 0; batch < 32; batch++) {
                 for (int j = 0; j < 2; j++) {
                     for (int k = 0; k < 2; k++) {
-                        double expected = 1 - Math.abs(j - k);
+                        double expected = Math.abs(j - k);
                         neuralNetwork.train(new double[]{j, k}, new double[]{expected});
                     }
                 }
