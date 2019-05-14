@@ -7,7 +7,7 @@ import io.github.henriquesabino.neunet.NeuralNetwork;
 public class BPNeuralNetwork extends NeuralNetwork {
     
     private static final long serialVersionUID = -3732215973838717612L;
-    private Matrix[] costs;
+    private Matrix[] costs, deltaWeights, deltaBiases;
     private double cost, learningRate;
     
     public BPNeuralNetwork(int inputsNum, int[] hiddenLayersSize, int outputsNum, double learningRate) {
@@ -16,6 +16,17 @@ public class BPNeuralNetwork extends NeuralNetwork {
         
         costs = new Matrix[netSize];
         cost = 0;
+        
+        deltaWeights = new Matrix[netSize];
+        deltaBiases = new Matrix[netSize];
+        
+        for (int i = 0; i < netSize; i++) {
+            deltaWeights[i] = weights[i].copy();
+            deltaWeights[i].applyForEach(x -> 0.0);
+            
+            deltaBiases[i] = biases[i].copy();
+            deltaBiases[i].applyForEach(x -> 0.0);
+        }
         
         for (int i = 0; i < neurons.length; i++) {
             costs[i] = neurons[i].copy();
@@ -72,24 +83,24 @@ public class BPNeuralNetwork extends NeuralNetwork {
     
     private void adjustWeights(double[] inputs) {
         
-        for (int l = 0; l < weights.length; l++) {
+        for (int l = 0; l < deltaWeights.length; l++) {
             
             Matrix derivedMat = functionApplier.getFunction(functions[l]).derivative(sums[l]);
             
-            for (int i = 0; i < weights[l].getRows(); i++) {
+            for (int i = 0; i < deltaWeights[l].getRows(); i++) {
                 for (int j = 0; j < weights[l].getColumns(); j++) {
                     
                     //If it is the first layer
                     if (l == 0) {
                         double value = inputs[j] * derivedMat.getValue(i, 0) * costs[l].getValue(i, 0);
                         value *= -learningRate;
-                        value += weights[l].getValue(i, j);
-                        weights[l].setValue(i, j, value);
+                        value += deltaWeights[l].getValue(i, j);
+                        deltaWeights[l].setValue(i, j, value);
                     } else {
                         double value = neurons[l - 1].getValue(j, 0) * derivedMat.getValue(i, 0) * costs[l].getValue(i, 0);
                         value *= -learningRate;
-                        value += weights[l].getValue(i, j);
-                        weights[l].setValue(i, j, value);
+                        value += deltaWeights[l].getValue(i, j);
+                        deltaWeights[l].setValue(i, j, value);
                     }
                 }
             }
@@ -98,16 +109,27 @@ public class BPNeuralNetwork extends NeuralNetwork {
     
     private void adjustBiases() {
         
-        for (int l = 0; l < biases.length; l++) {
+        for (int l = 0; l < deltaBiases.length; l++) {
             
             Matrix derivedMat = functionApplier.getFunction(functions[l]).derivative(sums[l]);
             
-            for (int n = 0; n < biases[l].getRows(); n++) {
+            for (int n = 0; n < deltaBiases[l].getRows(); n++) {
                 double value = derivedMat.getValue(n, 0) * costs[l].getValue(n, 0);
                 value *= -learningRate;
-                value += biases[l].getValue(n, 0);
-                biases[l].setValue(n, 0, value);
+                value += deltaBiases[l].getValue(n, 0);
+                deltaBiases[l].setValue(n, 0, value);
             }
+        }
+    }
+    
+    public void apply() {
+        
+        for (int i = 0; i < netSize; i++) {
+            weights[i].add(deltaWeights[i]);
+            biases[i].add(deltaBiases[i]);
+            
+            deltaWeights[i].applyForEach(x -> 0.0);
+            deltaBiases[i].applyForEach(x -> 0.0);
         }
     }
     
