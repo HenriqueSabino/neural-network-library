@@ -91,7 +91,7 @@ public class TrainingSet implements Serializable {
         shuffleSet();
         
         for (int i = 0; i < iterations; i++) {
-            for (int j = 0; j < size; j++) {
+            for (int j = 0; j < batchSize; j++) {
                 
                 int start = i * batchSize;
                 int end = start + batchSize;
