@@ -44,12 +44,15 @@ public class BPNeuralNetwork extends NeuralNetwork {
             }
         }
         
-        for (int epochs = 0; epochs < maxEpochs; epochs++) {
-            for (int batch = 0; batch < batchSize; batch++) {
-                double[] predicted = predict(trainingSet.getInputs(batch));
+        for (int e = 0; e < maxEpochs; e++) {
+            
+            TrainingSet batch = trainingSet.getBatch(batchSize);
+            
+            for (int b = 0; b < batchSize; b++) {
+                double[] predicted = predict(batch.getInputs(b));
                 
-                calculateCosts(trainingSet.getOutputs(batch), predicted);
-                adjustWeights(trainingSet.getInputs(batch));
+                calculateCosts(batch.getOutputs(b), predicted);
+                adjustWeights(batch.getInputs(b));
                 adjustBiases();
             }
             apply();
