@@ -69,7 +69,10 @@ public class TrainingSet implements Serializable {
     
     public TrainingSet getBatch(int batchSize) {
         
-        TrainingSet batch = new TrainingSet();
+        double[][] batchInputs = new double[batchSize][inputs[0].length];
+        double[][] batchOutputs = new double[batchSize][outputs[0].length];
+        
+        TrainingSet batch = new TrainingSet(batchInputs, batchOutputs);
         
         for (int i = 0; i < batchSize; i++) {
             
