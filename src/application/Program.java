@@ -1,11 +1,13 @@
 package application;
 
 import io.github.henriquesabino.neunet.bp.BPNeuralNetwork;
+import io.github.henriquesabino.training.TrainingSet;
 import processing.core.PApplet;
 
 public class Program extends PApplet {
     
-    private BPNeuralNetwork neuralNetwork = new BPNeuralNetwork(2, new int[]{8}, 1, 0.01);
+    private BPNeuralNetwork neuralNetwork = new BPNeuralNetwork(2, new int[]{4}, 1, 0.01);
+    private TrainingSet trainingSet;
     
     public static void main(String[] args) {
         PApplet.main("application.Program");
@@ -14,11 +16,23 @@ public class Program extends PApplet {
     @Override
     public void settings() {
         size(600, 600);
-        neuralNetwork.setActivationFunctionsForHiddenLayer(new String[]{
-                "sigmoid"
-        });
+        neuralNetwork.setActivationFunctionsForHiddenLayer("leaky_relu");
         
         neuralNetwork.setActivationFunctionsForOutputLayer("leaky_relu");
+        
+        double[][] inputs = new double[4][2];
+        double[][] outputs = new double[4][1];
+        
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                int index = 2 * i + j;
+                
+                inputs[index] = new double[]{i, j};
+                outputs[index] = new double[]{Math.abs(i - j)};
+            }
+        }
+        
+        trainingSet = new TrainingSet(inputs, outputs);
     }
     
     @Override
@@ -37,7 +51,7 @@ public class Program extends PApplet {
         }
         
         updatePixels();
-        trainNeuNet();
+        neuralNetwork.train(trainingSet, 2, 500);
     }
     
     @Override
@@ -47,19 +61,5 @@ public class Program extends PApplet {
         printArray(neuralNetwork.predict(new double[]{1, 0}));
         printArray(neuralNetwork.predict(new double[]{1, 1}));
         printArray(neuralNetwork.predict(new double[]{0, 1}));
-    }
-    
-    private void trainNeuNet() {
-        for (int epochs = 0; epochs < 100; epochs++) {
-            for (int batch = 0; batch < 32; batch++) {
-                for (int j = 0; j < 2; j++) {
-                    for (int k = 0; k < 2; k++) {
-                        double expected = Math.abs(j - k);
-                        neuralNetwork.train(new double[]{j, k}, new double[]{expected});
-                    }
-                }
-            }
-            neuralNetwork.apply();
-        }
     }
 }
