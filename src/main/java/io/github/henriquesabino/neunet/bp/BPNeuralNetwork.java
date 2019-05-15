@@ -35,7 +35,7 @@ public class BPNeuralNetwork extends NeuralNetwork {
         }
     }
     
-    public void train(TrainingSet trainingSet, int batchSize, int maxEpochs) {
+    public void train(TrainingSet trainingSet, int batchSize, int epochs) {
         
         for (Function function : functions) {
             if (function == null) {
@@ -44,18 +44,21 @@ public class BPNeuralNetwork extends NeuralNetwork {
             }
         }
         
-        for (int e = 0; e < maxEpochs; e++) {
+        for (int e = 0; e < epochs; e++) {
             
-            TrainingSet batch = trainingSet.getBatch(batchSize);
+            TrainingSet[] batches = trainingSet.getBatches(batchSize);
             
-            for (int b = 0; b < batchSize; b++) {
-                double[] predicted = predict(batch.getInputs(b));
+            for (int i = 0; i < batches.length; i++) {
                 
-                calculateCosts(batch.getOutputs(b), predicted);
-                adjustWeights(batch.getInputs(b));
-                adjustBiases();
+                for (int b = 0; b < batchSize; b++) {
+                    double[] predicted = predict(batches[e].getInputs(b));
+                    
+                    calculateCosts(batches[i].getOutputs(b), predicted);
+                    adjustWeights(batches[i].getInputs(b));
+                    adjustBiases();
+                }
+                apply();
             }
-            apply();
         }
     }
     

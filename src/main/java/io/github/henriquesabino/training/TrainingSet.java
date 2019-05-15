@@ -1,6 +1,7 @@
 package io.github.henriquesabino.training;
 
 import java.io.Serializable;
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 
 public class TrainingSet implements Serializable {
@@ -67,22 +68,40 @@ public class TrainingSet implements Serializable {
         }
     }
     
-    public TrainingSet getBatch(int batchSize) {
+    public TrainingSet[] getBatches(int batchSize) {
+        
+        int iterations = size / batchSize;
+        
+        //Because we are doing integer division, the results might be different
+        //floor(x / y) * y might not be equal to x
+        if (size % batchSize != 0 || iterations * batchSize != size) {
+            throw new InvalidParameterException("The number of batches must be divisible by the data set size, " +
+                    "and");
+        }
         
         double[][] batchInputs = new double[batchSize][inputs[0].length];
         double[][] batchOutputs = new double[batchSize][outputs[0].length];
         
-        TrainingSet batch = new TrainingSet(batchInputs, batchOutputs);
+        TrainingSet[] batches = new TrainingSet[iterations];
         
-        for (int i = 0; i < batchSize; i++) {
-            
-            int index = (int) Math.floor(Math.random() * size);
-            
-            batch.inputs[i] = inputs[index];
-            batch.outputs[i] = outputs[index];
+        for (int i = 0; i < batches.length; i++) {
+            batches[i] = new TrainingSet(batchInputs, batchOutputs);
         }
         
-        return batch;
+        shuffleSet();
+        
+        for (int i = 0; i < iterations; i++) {
+            for (int j = 0; j < size; j++) {
+                
+                int start = i * batchSize;
+                int end = start + batchSize;
+                
+                batches[i].inputs[j] = Arrays.copyOfRange(inputs[j], start, end);
+                batches[i].outputs[j] = Arrays.copyOfRange(outputs[j], start, end);
+            }
+        }
+        
+        return batches;
     }
     
     public double[] getInputs(int index) {
