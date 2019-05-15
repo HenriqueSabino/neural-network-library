@@ -75,8 +75,8 @@ public class TrainingSet implements Serializable {
         //Because we are doing integer division, the results might be different
         //floor(x / y) * y might not be equal to x
         if (size % batchSize != 0 || iterations * batchSize != size) {
-            throw new InvalidParameterException("The number of batches must be divisible by the data set size, " +
-                    "and");
+            throw new InvalidParameterException("The number of batches times the batch size must equal " +
+                    "the data set size");
         }
         
         double[][] batchInputs = new double[batchSize][inputs[0].length];
