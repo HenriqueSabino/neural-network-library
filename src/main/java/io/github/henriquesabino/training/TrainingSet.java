@@ -93,11 +93,8 @@ public class TrainingSet implements Serializable {
         for (int i = 0; i < iterations; i++) {
             for (int j = 0; j < batchSize; j++) {
                 
-                int start = i * batchSize;
-                int end = start + batchSize;
-                
-                batches[i].inputs[j] = Arrays.copyOfRange(inputs[j], start, end);
-                batches[i].outputs[j] = Arrays.copyOfRange(outputs[j], start, end);
+                System.arraycopy(inputs[j + j * i], 0, batches[i].inputs[j], 0, inputs[j + j * i].length);
+                System.arraycopy(outputs[j + j * i], 0, batches[i].outputs[j], 0, outputs[j + j * i].length);
             }
         }
         

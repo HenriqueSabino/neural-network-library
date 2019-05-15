@@ -51,7 +51,7 @@ public class BPNeuralNetwork extends NeuralNetwork {
             for (int i = 0; i < batches.length; i++) {
                 
                 for (int b = 0; b < batchSize; b++) {
-                    double[] predicted = predict(batches[e].getInputs(b));
+                    double[] predicted = predict(batches[i].getInputs(b));
                     
                     calculateCosts(batches[i].getOutputs(b), predicted);
                     adjustWeights(batches[i].getInputs(b));
