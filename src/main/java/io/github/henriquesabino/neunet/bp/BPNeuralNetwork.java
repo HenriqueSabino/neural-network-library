@@ -3,6 +3,7 @@ package io.github.henriquesabino.neunet.bp;
 import io.github.henriquesabino.math.Matrix;
 import io.github.henriquesabino.math.services.Function;
 import io.github.henriquesabino.neunet.NeuralNetwork;
+import io.github.henriquesabino.training.TrainingSet;
 
 public class BPNeuralNetwork extends NeuralNetwork {
     
@@ -34,7 +35,7 @@ public class BPNeuralNetwork extends NeuralNetwork {
         }
     }
     
-    public void train(double[] inputs, double[] expected) {
+    public void train(TrainingSet trainingSet, int batchSize, int maxEpochs) {
         
         for (Function function : functions) {
             if (function == null) {
@@ -43,11 +44,16 @@ public class BPNeuralNetwork extends NeuralNetwork {
             }
         }
         
-        double[] predicted = predict(inputs);
-        
-        calculateCosts(expected, predicted);
-        adjustWeights(inputs);
-        adjustBiases();
+        for (int epochs = 0; epochs < maxEpochs; epochs++) {
+            for (int batch = 0; batch < batchSize; batch++) {
+                double[] predicted = predict(trainingSet.getInputs(batch));
+                
+                calculateCosts(trainingSet.getOutputs(batch), predicted);
+                adjustWeights(trainingSet.getInputs(batch));
+                adjustBiases();
+            }
+            apply();
+        }
     }
     
     private void calculateCosts(double[] expected, double[] predicted) {
@@ -122,7 +128,7 @@ public class BPNeuralNetwork extends NeuralNetwork {
         }
     }
     
-    public void apply() {
+    private void apply() {
         
         for (int i = 0; i < netSize; i++) {
             weights[i].add(deltaWeights[i]);
