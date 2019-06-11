@@ -29,8 +29,8 @@ public class GANeuralNetwork extends NeuralNetwork {
             //and floor the result to get a fair distribution
             int index = (int) Math.floor(rnd * parents.size());
             
-            weights[i] = parents.get(index).weights[i];
-            biases[i] = parents.get(index).biases[i];
+            weights[i] = parents.get(index).weights[i].copy();
+            biases[i] = parents.get(index).biases[i].copy();
         }
         
         mutate();
