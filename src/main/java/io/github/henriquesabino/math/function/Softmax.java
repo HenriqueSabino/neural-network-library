@@ -10,6 +10,16 @@ public class Softmax implements ActivationFunction {
     public Matrix apply(Matrix matrix) {
         Matrix result = matrix.copy();
         
+        double max = Double.MIN_VALUE;
+        
+        for (double x : matrix.toArray()) {
+            max = (x > max) ? x : max;
+        }
+        
+        final double maxLambda = max;
+        
+        result.applyForEach(x -> x - maxLambda);
+        
         result.applyForEach(Math::exp);
         
         double sum = Arrays.stream(result.toArray()).reduce(0, Double::sum);
