@@ -2,9 +2,12 @@ package io.github.henriquesabino.math.function;
 
 import io.github.henriquesabino.math.Matrix;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class Softmax implements ActivationFunction {
+public class Softmax implements ActivationFunction, Serializable {
+    
+    private static final long serialVersionUID = -391678422395190017L;
     
     @Override
     public Matrix apply(Matrix matrix) {

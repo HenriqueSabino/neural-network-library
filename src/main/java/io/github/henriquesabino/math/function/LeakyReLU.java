@@ -2,7 +2,11 @@ package io.github.henriquesabino.math.function;
 
 import io.github.henriquesabino.math.Matrix;
 
-public class LeakyReLU implements ActivationFunction {
+import java.io.Serializable;
+
+public class LeakyReLU implements ActivationFunction, Serializable {
+    
+    private static final long serialVersionUID = -3917586455088973459L;
     
     @Override
     public Matrix apply(Matrix matrix) {

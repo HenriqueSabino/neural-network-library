@@ -2,8 +2,11 @@ package io.github.henriquesabino.math.services;
 
 import io.github.henriquesabino.math.function.*;
 
-public class FunctionApplier {
+import java.io.Serializable;
+
+public class FunctionApplier implements Serializable {
     
+    private static final long serialVersionUID = -2718970358181535921L;
     private static LeakyReLU leakyReLU = new LeakyReLU();
     private static ReLU reLU = new ReLU();
     private static Sigmoid sigmoid = new Sigmoid();
